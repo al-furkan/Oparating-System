@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class FCFS {
+public:
+    string process;
+    int arrival_t;
+    int burst_t;
+    int completion_t;
+    int turnaround_t;
+    int waiting_t;
+    int Gangchart;
+};
+
+int main() {
+    int n;
+    cout << "Enter the number of processes: ";
+    cin >> n;
+    FCFS a[n];
+    for (int i = 0; i < n; i++) {
+        cout << "Enter process, arrival time, and burst time for process " << i + 1 << ": ";
+        cin >> a[i].process >> a[i].arrival_t >> a[i].burst_t;
+    }
+
+    a[0].Gangchart=a[0].burst_t;
+    for (int i = 1; i < n; i++) {
+            a[i].Gangchart = a[i-1].Gangchart + a[i].burst_t;
+
+    }
+    cout << endl;
+
+    int avrg_w_t = 0; // Initialize average waiting time
+    for (int i = 0; i < n; i++) {
+        a[i].completion_t = a[i].Gangchart;
+        a[i].turnaround_t = a[i].completion_t - a[i].arrival_t;
+        a[i].waiting_t = a[i].turnaround_t - a[i].burst_t; // Calculate waiting time
+        avrg_w_t += a[i].waiting_t; // Accumulate waiting times
+    }
+
+    cout << "Entered processes:" << endl;
+    cout << "Process: " << ", Arrival Time:  " << ", Burst Time: " << ", Completion Time: " << ", Turnaround Time: " << ", Waiting Time: "  << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "      " << a[i].process<< "          " << a[i].arrival_t << "            "<< a[i].burst_t << "              " << a[i].completion_t << "            " << a[i].turnaround_t
+        << "             " << a[i].waiting_t << endl;
+    }
+    cout << "Average waiting time -> " << (double)avrg_w_t / n << endl; // Calculate and print average waiting time
+    return 0;
+}
