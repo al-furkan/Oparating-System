@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Process {
+public:
+    int arrival_t;
+    int burst_t;
+    int completion_t;
+    int turnaround_t;
+    int waiting_t;
+    bool completed;
+
+    Process() : arrival_t(0), burst_t(0), completion_t(0), turnaround_t(0), waiting_t(0), completed(false) {
+    }
+};
+
+class Scheduler {
+public:
+    void fcfs(Process p[], int n);
+};
+
+void Scheduler::fcfs(Process p[], int n) {
+    int t = 0, comp_n = 0;
+    int min_ar = 99999, min_p, idle = 1;
+
+    cout << "Process\tStart\tEnd\n";
+    while (comp_n < n) {
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_t < min_ar && p[i].arrival_t <= t && !p[i].completed) {
+                min_ar = p[i].arrival_t;
+                min_p = i;
+                idle = 0;
+            }
+        }
+
+        if (idle == 1) {
+            t++;
+            continue;
+        }
+
+        cout << "P" << min_p + 1 << "\t" << t << "\t" << t + p[min_p].burst_t << endl;
+
+        t += p[min_p].burst_t;
+
+        p[min_p].completion_t = t;
+        p[min_p].turnaround_t = t - p[min_p].arrival_t;
+        p[min_p].waiting_t = p[min_p].turnaround_t - p[min_p].burst_t;
+        p[min_p].completed = true;
+
+        idle = 1;
+        comp_n++;
+        min_ar = 99999;
+    }
+}
+
+int main() {
+    int n;
+    cout << "FCFS Algorithm\n";
+    cout << "Number of processes: ";
+    cin >> n;
+
+    Process p[100];
+
+    cout << "Process\tArrival\tBurst Time\n";
+    for (int i = 0; i < n; i++) {
+        cout << "P" << i + 1 << ": ";
+        cin >> p[i].arrival_t >> p[i].burst_t;
+    }
+
+    Scheduler scheduler;
+    scheduler.fcfs(p, n);
+
+    int total_turnaround_t = 0, total_waiting_t = 0;
+    cout << "Process\tArrival\tBurst\tComp.\tTurnar.\tWaiting\n";
+    for (int i = 0; i < n; i++) {
+        cout << "P" << i + 1 << "\t" << p[i].arrival_t << "\t" << p[i].burst_t << "\t" << p[i].completion_t << "\t" << p[i].turnaround_t << "\t" << p[i].waiting_t << endl;
+        total_turnaround_t += p[i].turnaround_t;
+        total_waiting_t += p[i].waiting_t;
+    }
+
+    cout << "Average Turnaround Time: " << (float)total_turnaround_t / n << endl;
+    cout << "Average Waiting Time: " << (float)total_waiting_t / n << endl;
+
+    return 0;
+}
