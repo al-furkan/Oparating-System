@@ -1,0 +1,102 @@
+Implementation of FCFS Algorithm in C
+Run this program with your own set of inputs.
+#include <stdio.h>
+
+struct Process{
+    int arrival_t;
+    int burst_t;
+    int completion_t;
+    int turnaround_t;
+    int waiting_t;
+    int completed;
+};
+
+int fcfs(struct Process p[], int n){
+    /*
+    Variables
+    p[]         Array containing the processes
+    n           Number of processes
+    t           Time instance
+    comp_n      Number of completed processes
+    min_ar      Variable to store minimum arrival time
+    min_p       Process with the minimum arrival time
+    idle        Processor status
+    */
+    int t=0, comp_n = 0, i;
+    int min_ar = 99999, min_p, idle=1;
+
+    printf("Process\tStart\tEnd\n");
+    while(comp_n < n){
+        // Finding the process with least arrival time
+        for(i=0;i<n;i++){
+            if(p[i].arrival_t<min_ar && p[i].arrival_t<=t && !p[i].completed){
+                min_ar = p[i].arrival_t;
+                min_p = i;
+                idle = 0;
+            }
+        }
+
+        // If processor remains idle, no process in queue to run
+        if(idle == 1){
+            t++;
+            continue;
+        }
+
+        printf("P%d\t", min_p+1);
+        printf("%d\t", t);
+        printf("%d\n", t+p[min_p].burst_t);
+
+        // Forwarding Time
+        t += p[min_p].burst_t;
+
+        // Setting the values for a process
+        p[min_p].completion_t = t;
+        p[min_p].turnaround_t = t - p[min_p].arrival_t;
+        p[min_p].waiting_t = p[min_p].turnaround_t - p[min_p].burst_t;
+        p[min_p].completed = 1;
+
+        // Reinitializing varialbes
+        idle = 1;
+        comp_n++;
+        min_ar = 99999;
+    }
+
+}
+
+int main(){
+    struct Process p[100];
+    int n, i, total_turnaround_t = 0, total_waiting_t = 0;
+    float avg_turnaround_t, avg_waiting_t;
+    printf("FCFS Algorithm\n");
+    printf("Number of processes: ");
+    scanf("%d", &n);
+    printf("Process\tArrival\tBurst Time\n");
+    for(i=0;i<n;i++){
+        printf("P%d: ", i+1);
+        scanf("%d %d", &p[i].arrival_t, &p[i].burst_t);
+        p[i].completion_t = 0;
+        p[i].turnaround_t = 0;
+        p[i].waiting_t = 0;
+        p[i].completed = 0;
+    }
+
+    fcfs(p, n);
+
+    printf("Process\tArrival\tBurst\tComp.\tTurnar.\tWaiting\n");
+    for(i=0;i<n;i++){
+        printf("P%d\t", i+1);
+        printf("%d\t", p[i].arrival_t);
+        printf("%d\t", p[i].burst_t);
+        printf("%d\t", p[i].completion_t);
+        printf("%d\t", p[i].turnaround_t);
+        printf("%d\n", p[i].waiting_t);
+
+        total_turnaround_t += p[i].turnaround_t;
+        total_waiting_t += p[i].waiting_t;
+    }
+
+    printf("Average Turnaround Time: %f\n", (float)total_turnaround_t/n);
+    printf("Average Waiting Time: %f\n", (float)total_waiting_t/n);
+
+
+}
