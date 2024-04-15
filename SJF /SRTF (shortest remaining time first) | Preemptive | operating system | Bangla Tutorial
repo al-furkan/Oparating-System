@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+class Process {
+public:
+    int arrival_t;
+    int burst_t;
+    int completion_t;
+    int turnaround_t;
+    int waiting_t;
+    int remaining_t;
+    bool completed;
+
+    Process() : arrival_t(0), burst_t(0), completion_t(0), turnaround_t(0), waiting_t(0), remaining_t(0), completed(false) {}
+};
+
+class Scheduler {
+public:
+    static void srjf(Process p[], int n) {
+        int t = 0, comp_n = 0;
+        int min_t = 99999, min_p, running_p = -1, idle = 1;
+
+       cout << "Process\tStart\tEnd\n";
+        while (comp_n < n) {
+            for (int i = 0; i < n; i++) {
+                if (p[i].remaining_t < min_t && p[i].arrival_t <= t && !p[i].completed) {
+                    min_t = p[i].remaining_t;
+                    min_p = i;
+                    idle = 0;
+                }
+            }
+
+            if (idle == 1) {
+                t++;
+                continue;
+            }
+
+            if (min_p != running_p && running_p != -1) {
+                cout << t << endl;
+            }
+
+            if (min_p != running_p) {
+               cout << "P" << min_p + 1 << "\t";
+                cout << t << "\t";
+            }
+
+            running_p = min_p;
+            t++;
+
+            p[min_p].remaining_t--;
+
+            if (p[min_p].remaining_t == 0) {
+                p[min_p].completion_t = t;
+                p[min_p].turnaround_t = t - p[min_p].arrival_t;
+                p[min_p].waiting_t = p[min_p].turnaround_t - p[min_p].burst_t;
+                p[min_p].completed = true;
+                comp_n++;
+            }
+
+            idle = 1;
+            min_t = 99999;
+        }
+
+        cout << t << endl;
+    }
+};
+
+int main() {
+    int n, total_turnaround_t = 0, total_waiting_t = 0;
+    float avg_turnaround_t, avg_waiting_t;
+
+    cout << "FCFS Algorithm\n";
+    cout << "Number of processes: ";
+    cin >> n;
+
+    Process p[100];
+
+    cout << "Process\tArrival\tBurst Time\n";
+    for (int i = 0; i < n; i++) {
+        cout << "P" << i + 1 << ": ";
+        cin >> p[i].arrival_t >> p[i].burst_t;
+        p[i].remaining_t = p[i].burst_t;
+    }
+
+    Scheduler::srjf(p, n);
+
+    cout << "Process\tArrival\tBurst\tComp.\tTurnar.\tWaiting\n";
+    for (int i = 0; i < n; i++) {
+        cout << "P" << i + 1 << "\t" << p[i].arrival_t << "\t" << p[i].burst_t << "\t" << p[i].completion_t << "\t" << p[i].turnaround_t << "\t" << p[i].waiting_t<< endl;
+
+        total_turnaround_t += p[i].turnaround_t;
+        total_waiting_t += p[i].waiting_t;
+    }
+
+    cout << "Average Turnaround Time: " << (float)total_turnaround_t / n << endl;
+    cout << "Average Waiting Time: " << (float)total_waiting_t / n << endl;
+
+    return 0;
+}
+
